@@ -31,6 +31,7 @@ import androidx.navigation.Navigation
 import com.apc.revenuerise.R
 import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.databinding.ActivityMainBinding
+import com.apc.revenuerise.service.CallMonitorService
 import com.apc.revenuerise.ui.theme.RevenueRiseTheme
 import com.apc.revenuerise.vms.HomeViewModel
 import com.apc.solarsuvidha.util.PermissionHelper
@@ -82,7 +83,13 @@ class MainActivity : AppCompatActivity() , NavController.OnDestinationChangedLis
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.INTERNET,
                 android.Manifest.permission.ACCESS_NETWORK_STATE,
-            )
+                android.Manifest.permission.READ_PHONE_STATE,
+                android.Manifest.permission.READ_CALL_LOG,
+
+
+
+
+                )
         } else {
             perms = arrayOf(
                 android.Manifest.permission.READ_MEDIA_IMAGES,
@@ -94,7 +101,12 @@ class MainActivity : AppCompatActivity() , NavController.OnDestinationChangedLis
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.INTERNET,
                 android.Manifest.permission.ACCESS_NETWORK_STATE,
-            )
+                android.Manifest.permission.READ_PHONE_STATE,
+                android.Manifest.permission.READ_CALL_LOG,
+                android.Manifest.permission.FOREGROUND_SERVICE,
+                android.Manifest.permission.POST_NOTIFICATIONS,
+
+                )
         }
 
 
@@ -113,6 +125,8 @@ class MainActivity : AppCompatActivity() , NavController.OnDestinationChangedLis
                     100
                 )
             } else {
+                val intent = Intent(this, CallMonitorService::class.java)
+                startService(intent)
                 val startCalendar = Calendar.getInstance()
                 startCalendar.set(2024, Calendar.NOVEMBER, 1, 0, 0, 0)
                 val startDate = startCalendar.timeInMillis
