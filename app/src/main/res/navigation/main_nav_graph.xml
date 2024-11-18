@@ -11,6 +11,9 @@
         <action
             android:id="@+id/action_homeFrag_to_callLogFrag"
             app:destination="@id/callLogFrag" />
+        <action
+            android:id="@+id/action_homeFrag_to_consumerDetailFrag"
+            app:destination="@id/consumerDetailFrag" />
     </fragment>
     <fragment
         android:id="@+id/callLogFrag"
@@ -19,5 +22,13 @@
         <argument
             android:name="mob"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/consumerDetailFrag"
+        android:name="com.apc.revenuerise.ui.screens.ConsumerDetailFrag"
+        android:label="ConsumerDetailFrag" >
+        <argument
+            android:name="consumer"
+            app:argType="com.apc.revenuerise.dataClasses.Consumer" />
     </fragment>
 </navigation>

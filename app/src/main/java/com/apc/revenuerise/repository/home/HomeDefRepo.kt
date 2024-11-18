@@ -6,6 +6,7 @@ import android.provider.CallLog
 import android.util.Log
 import com.apc.revenuerise.api.HomeApi
 import com.apc.revenuerise.dataClasses.CallLogEntry
+import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
 import com.apc.revenuerise.dispatchers.DispatcherTypes
 import com.apc.solarsuvidha.util.Resource
@@ -21,7 +22,7 @@ class HomeDefRepo @Inject constructor(
 ) : HomeMainRepo {
 
     override suspend fun getAssignedConsumers(uid: Int)
-    : Resource<GetConsumersForCallingRes> = withContext(dispatcherProvider.io) {
+    : Resource<List<Consumer>> = withContext(dispatcherProvider.io) {
         try {
             // Attempt to login with the remote server
             val response = apiService.getConsumersForCalling(uid)

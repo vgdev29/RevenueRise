@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,7 +56,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.apc.revenuerise.R
 import com.apc.revenuerise.dataClasses.Consumer
+import com.apc.revenuerise.ui.screens.HomeFragDirections
 import com.apc.revenuerise.vms.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
@@ -186,7 +189,7 @@ class HomeFrag : Fragment() {
                     when (consumersState) {
                         is HomeViewModel.GetAssignedConsumersEvent.Success -> {
                             val consumers =
-                                (consumersState as HomeViewModel.GetAssignedConsumersEvent.Success).resultText?.consumers
+                                (consumersState as HomeViewModel.GetAssignedConsumersEvent.Success).resultText
                             consumers?.let {
                                 items(it.size) { index ->
                                     ConsumerItem(consumer = consumers[index])
@@ -257,9 +260,14 @@ class HomeFrag : Fragment() {
             Card(
                 onClick = {
 
-
-
-
+                    val bundle=Bundle()
+                    bundle.putParcelable("consumer",consumer)
+               //     navController.navigate(R.id.action_homeFrag_to_consumerDetailFrag,bundle)
+                    try {
+                        navController.navigate(HomeFragDirections.actionHomeFragToConsumerDetailFrag(consumer))
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
 
 
                     //      vm1.consumer.value=consumer
@@ -320,7 +328,8 @@ class HomeFrag : Fragment() {
                     .clip(RoundedCornerShape(8.dp)) // Circular image shape
                     .border(2.dp, Color.Black, RoundedCornerShape(8.dp)) // Border around the image
                     .shadow(2.dp, RoundedCornerShape(8.dp)),// Offset to float half outside the main card
-                    // Optional border
+
+                // Optional border
                  shape = RoundedCornerShape(8.dp), // Circular shape to mimic a FAB
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp), // Elevation to float it above the card
                 colors = CardDefaults.cardColors(containerColor = Color.White)

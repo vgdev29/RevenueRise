@@ -93,6 +93,8 @@ class CallLogFrag:Fragment() {
         val endDate = endCalendar.timeInMillis
 // List of numbers to filter by
         val numbers = listOf(mob)
+        //val numbers = listOf("+919212033808", "01140777777")
+
         vm.getCallLogs(
             mContext.contentResolver,
             startDate,

@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apc.revenuerise.dataClasses.CallLogEntry
+import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
 import com.apc.revenuerise.dispatchers.DispatcherTypes
 import com.apc.revenuerise.repository.home.HomeDefRepo
@@ -26,7 +27,7 @@ class HomeViewModel @Inject constructor(
     sealed class GetAssignedConsumersEvent {
         object Empty : GetAssignedConsumersEvent()
         object Loading : GetAssignedConsumersEvent()
-        data class Success(val resultText: GetConsumersForCallingRes?) : GetAssignedConsumersEvent()
+        data class Success(val resultText: List<Consumer>?) : GetAssignedConsumersEvent()
         data class Failure(val errorText: String) : GetAssignedConsumersEvent()
     }
 
@@ -42,10 +43,10 @@ class HomeViewModel @Inject constructor(
             _consListState.value = GetAssignedConsumersEvent.Loading // Set loading state
             when (val result = repository.getAssignedConsumers(uid)) {
                 is Resource.Success -> {
-                    if (!result.data!!.error) {
+                    if (result.data!!.isNotEmpty()) {
                         _consListState.value = GetAssignedConsumersEvent.Success(result.data)
                     } else {
-                        _consListState.value = GetAssignedConsumersEvent.Failure(result.data?.message ?: "Unknown Error")
+                        _consListState.value = GetAssignedConsumersEvent.Failure("No Data Found !")
                     }
                 }
                 is Resource.Error -> {
