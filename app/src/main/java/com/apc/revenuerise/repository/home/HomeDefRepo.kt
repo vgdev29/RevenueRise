@@ -100,5 +100,51 @@ class HomeDefRepo @Inject constructor(
             }
         }
 
+    override suspend fun getLastCallDetails(
+        contentResolver: ContentResolver,
+    ): Resource<CallLogEntry> = withContext(dispatcherProvider.io) {
+        try {
+            val projection = arrayOf(
+                CallLog.Calls.NUMBER,
+                CallLog.Calls.TYPE,
+                CallLog.Calls.DATE,
+                CallLog.Calls.DURATION
+            )
+            val selection = "${CallLog.Calls.TYPE} = ?"
+            val selectionArgs = arrayOf(CallLog.Calls.OUTGOING_TYPE.toString())
+            val sortOrder = "${CallLog.Calls.DATE} DESC" // Get the latest outgoing call
+
+            contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val numberIndex = cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER)
+                    val typeIndex = cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE)
+                    val dateIndex = cursor.getColumnIndexOrThrow(CallLog.Calls.DATE)
+                    val durationIndex = cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION)
+
+                    val number = cursor.getString(numberIndex)
+                    val type = cursor.getInt(typeIndex)
+                    val date = cursor.getLong(dateIndex)
+                    val duration = cursor.getLong(durationIndex)
+
+                    return@withContext Resource.Success(CallLogEntry(number, type, date, duration))
+                }
+            }
+
+            // If no rows found
+            Resource.Error("No data found!")
+        } catch (e: IOException) {
+            // Handle network/local database fallback if needed
+            Resource.Error("Error occurred: ${e.message}")
+        } catch (e: Exception) {
+            Resource.Error("Unexpected error: ${e.message}")
+        }
+    }
+
 
 }

@@ -7,7 +7,9 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
@@ -16,6 +18,7 @@ import androidx.core.app.NotificationCompat
 import com.apc.revenuerise.R
 import com.apc.revenuerise.dispatchers.DispatcherTypes
 import com.apc.revenuerise.repository.home.HomeDefRepo
+import com.apc.solarsuvidha.util.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -75,10 +78,16 @@ class CallMonitorService : Service() {
             TelephonyManager.CALL_STATE_OFFHOOK -> {
                 sendAlert("Call Connected")
             }
+
             TelephonyManager.CALL_STATE_IDLE -> {
-                fetchCallLogs()
+            //    fetchCallLogs()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    fetchLastCallRecord()
+                }, 2000)
+            //    fetchLastCallRecord()
                 sendAlert("Call Disconnected")
             }
+
             TelephonyManager.CALL_STATE_RINGING -> {
                 sendAlert("Incoming Call")
             }
@@ -87,6 +96,33 @@ class CallMonitorService : Service() {
 
     private fun sendAlert(message: String) {
         Log.d("CallMonitorService", "Alert: $message")
+    }
+    private fun fetchLastCallRecord() {
+        serviceScope.launch {
+            try {
+                val result = repository.getLastCallDetails(contentResolver)
+                when (result) {
+                    is Resource.Success -> {
+                        result.data?.let { callLogEntry ->
+                            val noti = createNotification(
+                                "Last Call: ${callLogEntry.number}, Duration: ${callLogEntry.duration} s"
+                            )
+                            notificationManager.notify(2, noti)
+                            Log.d(
+                                "CallMonitorService",
+                                "Last Call Details - Number: ${callLogEntry.number}, " +
+                                        "Duration: ${callLogEntry.duration}s"
+                            )
+                        } ?: Log.e("CallMonitorService", "No call data found in Success result!")
+                    }
+                    is Resource.Error -> {
+                        Log.e("CallMonitorService", "Error fetching call logs: ${result.message}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("CallMonitorService", "Unexpected error fetching call logs", e)
+            }
+        }
     }
 
     private fun fetchCallLogs() {
@@ -109,9 +145,9 @@ class CallMonitorService : Service() {
             set(Calendar.SECOND, 59)
             set(Calendar.MILLISECOND, 999)
         }
-        val numbers = listOf("+919212033808", "01140777777","9212033811","+919212033811")
-            Log.d("DATE>>",startCalendar.timeInMillis.toString())
-        Log.d("DATE>>",endCalendar.timeInMillis.toString())
+        val numbers = listOf("+919212033808", "01140777777", "9212033811", "+919212033811")
+        Log.d("DATE>>", startCalendar.timeInMillis.toString())
+        Log.d("DATE>>", endCalendar.timeInMillis.toString())
 
         serviceScope.launch {
             try {
@@ -122,7 +158,8 @@ class CallMonitorService : Service() {
                     numbers
                 )
                 if (result.data?.isNotEmpty() == true) {
-                    val noti = createNotification("Last Call: ${result.data[0].number}, Duration: ${result.data[0].duration} s")
+                    val noti =
+                        createNotification("Last Call: ${result.data[0].number}, Duration: ${result.data[0].duration} s")
                     notificationManager.notify(2, noti)
                     Log.d("CallMonitorService", "Data fetched: ${result.data.size}")
                 } else {
@@ -145,7 +182,8 @@ class CallMonitorService : Service() {
                 channelName,
                 NotificationManager.IMPORTANCE_LOW
             )
-            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(notificationChannel)
         }
 

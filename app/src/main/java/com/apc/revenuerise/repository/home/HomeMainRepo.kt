@@ -16,5 +16,8 @@ interface HomeMainRepo {
                             numbers: List<String>):
             Resource<List<CallLogEntry>>
 
+    suspend fun getLastCallDetails(contentResolver: ContentResolver):
+        Resource<CallLogEntry>
+
 
 }
