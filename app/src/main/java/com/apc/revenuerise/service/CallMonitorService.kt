@@ -108,6 +108,7 @@ class CallMonitorService : Service() {
                                 "Last Call: ${callLogEntry.number}, Duration: ${callLogEntry.duration} s"
                             )
                             notificationManager.notify(2, noti)
+                            repository.postCallRecord(callLogEntry.number,callLogEntry.duration.toString(),callLogEntry.date.toString())
                             Log.d(
                                 "CallMonitorService",
                                 "Last Call Details - Number: ${callLogEntry.number}, " +

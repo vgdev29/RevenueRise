@@ -8,6 +8,7 @@ import com.apc.revenuerise.api.HomeApi
 import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
+import com.apc.revenuerise.dataClasses.PostCallRecordRes
 import com.apc.revenuerise.dispatchers.DispatcherTypes
 import com.apc.solarsuvidha.util.Resource
 import kotlinx.coroutines.withContext
@@ -146,5 +147,37 @@ class HomeDefRepo @Inject constructor(
         }
     }
 
+    override suspend fun postCallRecord(
+        mob: String,
+        duration: String,
+        date: String
+    ): Resource<PostCallRecordRes>
+             = withContext(dispatcherProvider.io) {
+        try {
+            // Attempt to login with the remote server
+            val response = apiService.postCallRecord(
+                mob,
+                duration,
+                date
+            )
+            val result = response.body()
+            if (response.isSuccessful && result != null && result.status == "success") {
+                Resource.Success(result)
+            } else {
+
+                // On failure, fallback to local database
+                Log.d("RETRO>>", "Error")
+
+                //   val res = consumerDao.getUser(loginReq.username)
+                Resource.Error(response.message())
+
+            }
+        } catch (e: IOException) {
+            // Network issue, use local database
+            //  val res = userDao.getUser(loginReq.username)
+            Resource.Error(e.message)
+
+        }
+    }
 
 }

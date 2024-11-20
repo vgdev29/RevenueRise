@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
+import com.apc.revenuerise.dataClasses.PostCallRecordRes
 import com.apc.solarsuvidha.util.Resource
 
 
@@ -18,6 +19,10 @@ interface HomeMainRepo {
 
     suspend fun getLastCallDetails(contentResolver: ContentResolver):
         Resource<CallLogEntry>
+
+    suspend fun postCallRecord(mob:String,duration:String,date:String):
+            Resource<PostCallRecordRes>
+
 
 
 }
