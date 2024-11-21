@@ -15,7 +15,6 @@ import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.apc.revenuerise.R
 import com.apc.revenuerise.dispatchers.DispatcherTypes
 import com.apc.revenuerise.repository.home.HomeDefRepo
 import com.apc.solarsuvidha.util.Resource
@@ -25,7 +24,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -108,7 +112,8 @@ class CallMonitorService : Service() {
                                 "Last Call: ${callLogEntry.number}, Duration: ${callLogEntry.duration} s"
                             )
                             notificationManager.notify(2, noti)
-                            repository.postCallRecord(callLogEntry.number,callLogEntry.duration.toString(),callLogEntry.date.toString())
+
+                            repository.postCallRecord(callLogEntry.number,callLogEntry.duration.toString(),getDate(callLogEntry.date,"yyyy-MM-dd hh:mm:ssZ"))
                             Log.d(
                                 "CallMonitorService",
                                 "Last Call Details - Number: ${callLogEntry.number}, " +
@@ -125,7 +130,15 @@ class CallMonitorService : Service() {
             }
         }
     }
+    fun getDate(milliSeconds: Long, dateFormat: String?): String {
+        // Create a DateFormatter object for displaying date in specified format.
+        val formatter: SimpleDateFormat = SimpleDateFormat(dateFormat, Locale.getDefault())
 
+        // Create a calendar object that will convert the date and time value in milliseconds to date.
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = milliSeconds
+        return formatter.format(calendar.time)
+    }
     private fun fetchCallLogs() {
         val startCalendar = Calendar.getInstance().apply {
             set(Calendar.YEAR, get(Calendar.YEAR))  // Set the current year
