@@ -5,6 +5,8 @@ import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
 import com.apc.revenuerise.dataClasses.PostCallRecordRes
+import com.apc.revenuerise.dataClasses.ServerCallLogsRes
+import com.apc.revenuerise.vms.HomeViewModel
 import com.apc.solarsuvidha.util.Resource
 
 
@@ -22,6 +24,9 @@ interface HomeMainRepo {
 
     suspend fun postCallRecord(mob:String,duration:String,date:String):
             Resource<PostCallRecordRes>
+
+    suspend fun getServerCallRecord():
+            Resource<ServerCallLogsRes>
 
 
 

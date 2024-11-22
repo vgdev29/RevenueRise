@@ -28,5 +28,6 @@ data class Consumer(
     val USER: String,
     val YEAR: Int,
     val id: Int,
-    val index: Int
+    val index: Int,
+    val callingStatus:Int = 0
 ): Parcelable

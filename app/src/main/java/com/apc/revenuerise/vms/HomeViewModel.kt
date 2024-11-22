@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
+import com.apc.revenuerise.dataClasses.ServerCallLogsRes
 import com.apc.revenuerise.dispatchers.DispatcherTypes
 import com.apc.revenuerise.repository.home.HomeDefRepo
 import com.apc.solarsuvidha.util.Resource
@@ -108,6 +109,48 @@ class HomeViewModel @Inject constructor(
     fun reInitCallLogs() {
         _callLogState.value = GetCallLogsEvent.Empty
     }
+
+    /////
+
+
+    // Sealed class to represent different states of the login process
+    sealed class GetCallLogsFromServerEvent {
+        object Empty : GetCallLogsFromServerEvent()
+        object Loading : GetCallLogsFromServerEvent()
+        data class Success(val resultText: ServerCallLogsRes?) : GetCallLogsFromServerEvent()
+        data class Failure(val errorText: String) : GetCallLogsFromServerEvent()
+    }
+
+    // Mutable StateFlow to hold the current state of login
+    private val _serverCallLogsState = MutableStateFlow<GetCallLogsFromServerEvent>(GetCallLogsFromServerEvent.Empty)
+
+    // Exposed immutable StateFlow for composable to observe
+    val serverCallLogsState: StateFlow<GetCallLogsFromServerEvent> = _serverCallLogsState
+
+    // Function to handle user login
+    fun getServerCallLogs() {
+        viewModelScope.launch(dispatchers.io) {
+            _serverCallLogsState.value = GetCallLogsFromServerEvent.Loading // Set loading state
+            when (val result = repository.getServerCallRecord()) {
+                is Resource.Success -> {
+                    if (result.data!!.isNotEmpty()) {
+                        _serverCallLogsState.value = GetCallLogsFromServerEvent.Success(result.data)
+                    } else {
+                        _serverCallLogsState.value = GetCallLogsFromServerEvent.Failure("No Data Found !")
+                    }
+                }
+                is Resource.Error -> {
+                    _serverCallLogsState.value = GetCallLogsFromServerEvent.Failure(result.message ?: "Network Error")
+                }
+            }
+        }
+    }
+
+    // Reinitialize login state
+    fun reInitServerCallLogs() {
+        _serverCallLogsState.value = GetCallLogsFromServerEvent.Empty
+    }
+
 
 
 }

@@ -3,6 +3,7 @@ package com.apc.revenuerise.api
 import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
 import com.apc.revenuerise.dataClasses.PostCallRecordRes
+import com.apc.revenuerise.dataClasses.ServerCallLogsRes
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -21,4 +22,8 @@ interface HomeApi {
         @Path("date")  date:String
     ):Response<PostCallRecordRes>
 
+    @GET("/mob_call_sendList2")
+    suspend fun getCallRecords(
+
+    ):Response<ServerCallLogsRes>
 }

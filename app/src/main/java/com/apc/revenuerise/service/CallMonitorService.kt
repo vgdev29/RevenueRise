@@ -37,7 +37,7 @@ class CallMonitorService : Service() {
     private lateinit var telephonyManager: TelephonyManager
     private lateinit var notificationManager: NotificationManager
     private lateinit var telephonyCallback: TelephonyCallback // Store the callback reference
-
+    private var isConnected=false
     @Inject
     lateinit var repository: HomeDefRepo
 
@@ -80,16 +80,21 @@ class CallMonitorService : Service() {
     private fun handleCallState(state: Int) {
         when (state) {
             TelephonyManager.CALL_STATE_OFFHOOK -> {
+                isConnected=true
                 sendAlert("Call Connected")
             }
 
             TelephonyManager.CALL_STATE_IDLE -> {
             //    fetchCallLogs()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    fetchLastCallRecord()
-                }, 2000)
-            //    fetchLastCallRecord()
-                sendAlert("Call Disconnected")
+                if(isConnected){
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        fetchLastCallRecord()
+                    }, 2000)
+                    //    fetchLastCallRecord()
+                    sendAlert("Call Disconnected")
+                    isConnected=false
+                }
+
             }
 
             TelephonyManager.CALL_STATE_RINGING -> {

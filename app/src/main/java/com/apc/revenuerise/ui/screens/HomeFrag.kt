@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,6 +62,7 @@ import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.ui.screens.HomeFragDirections
 import com.apc.revenuerise.vms.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.combine
 import java.util.Calendar
 
 
@@ -94,6 +96,7 @@ class HomeFrag : Fragment() {
         navController = Navigation.findNavController(view)
   //      navController.navigate(HomeFragDirections.actionCustomerListFragToPerformSignatureFrag())
         vm.getAssignedConsumers(123)
+        vm.getServerCallLogs()
     }
 
     @Composable
@@ -107,8 +110,20 @@ class HomeFrag : Fragment() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun ConsumerList(consumerViewModel: HomeViewModel) {
-        val consumersState by consumerViewModel.consListState.collectAsState()
-      /*  val user by vm1.userState.collectAsState()
+
+        // Combine the two StateFlows
+        val combinedState = combine(
+            vm.consListState,
+            vm.serverCallLogsState
+        ) { catState, inspectionDataState ->
+            Pair(catState, inspectionDataState)
+        }.collectAsState(
+            initial = Pair(
+                HomeViewModel.GetAssignedConsumersEvent.Empty,
+                HomeViewModel.GetCallLogsFromServerEvent.Empty
+            )
+        )
+        /*  val user by vm1.userState.collectAsState()
 
 
         when (user) {
@@ -186,18 +201,46 @@ class HomeFrag : Fragment() {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(16.dp),
                 ) {
-                    when (consumersState) {
-                        is HomeViewModel.GetAssignedConsumersEvent.Success -> {
-                            val consumers =
-                                (consumersState as HomeViewModel.GetAssignedConsumersEvent.Success).resultText
-                            consumers?.let {
-                                items(it.size) { index ->
-                                    ConsumerItem(consumer = consumers[index])
-                                }
-                            }
+                    val (conState, serverCallLogs) = combinedState.value
+
+                    when  {
+                     conState is HomeViewModel.GetAssignedConsumersEvent.Success && serverCallLogs is HomeViewModel.GetCallLogsFromServerEvent.Success -> {
+
+                         val consumers = conState.resultText!!.map {
+                             it.copy(MOBILE_NO = it.MOBILE_NO.toString().removeSuffix(".0").trim())
+                         }
+
+                         val callLogs = serverCallLogs.resultText!!.map {
+                             it.copy(MOBILE_NO = it.MOBILE_NO.toString().trim())
+                         }
+
+// Join lists by the common property "MOBILE_NO"
+                         val joinedList = consumers.mapNotNull { consumer ->
+                             val callDetails = callLogs.find {
+                                 it.MOBILE_NO == consumer.MOBILE_NO
+                             }
+                             if (callDetails != null) {
+                                 consumer to callDetails
+                             } else {
+                                 null
+                             }
+                         }
+
+                         Log.d("joinedListSize",joinedList.size.toString())
+                         Log.d("callDetailsSize",callLogs.size.toString())
+                         Log.d("consumersSize",consumers.size.toString())
+
+                         Log.d("joinedList",joinedList.toString())
+                         Log.d("callDetails",callLogs.toString())
+                         Log.d("consumers",consumers.toString())
+
+                         items(consumers.size) { index ->
+                             val con=consumers[index]
+                             ConsumerItem(consumer = consumers[index])
+                         }
                         }
 
-                        is HomeViewModel.GetAssignedConsumersEvent.Loading -> {
+                        conState is HomeViewModel.GetAssignedConsumersEvent.Loading -> {
                             item {
                                 Box(
                                     modifier = Modifier
@@ -210,7 +253,7 @@ class HomeFrag : Fragment() {
                             }
                         }
 
-                        is HomeViewModel.GetAssignedConsumersEvent.Failure -> {
+                     conState is HomeViewModel.GetAssignedConsumersEvent.Failure -> {
                             item {
                                 Box(
                                     modifier = Modifier
@@ -227,7 +270,7 @@ class HomeFrag : Fragment() {
                             }
                         }
 
-                        HomeViewModel.GetAssignedConsumersEvent.Empty -> {
+                       conState is HomeViewModel.GetAssignedConsumersEvent.Empty -> {
                             item {
                                 Box(
                                     modifier = Modifier
