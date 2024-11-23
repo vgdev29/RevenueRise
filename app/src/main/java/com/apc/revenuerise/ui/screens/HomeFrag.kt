@@ -580,5 +580,11 @@ class HomeFrag : Fragment() {
     }
 
 
-
+    override fun onResume() {
+        super.onResume()
+        vm.reInitAssignedConsList()
+        vm.reInitServerCallLogs()
+        vm.getAssignedConsumers(123)
+        vm.getServerCallLogs()
+    }
 }
