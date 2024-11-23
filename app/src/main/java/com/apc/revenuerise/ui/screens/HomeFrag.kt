@@ -162,7 +162,10 @@ class HomeFrag : Fragment() {
                 TopAppBar(
                     actions = {
                         IconButton(onClick = {
+                            vm.reInitAssignedConsList()
+                            vm.reInitServerCallLogs()
                             vm.getAssignedConsumers(123)
+                            vm.getServerCallLogs()
                             //    vm1.clearUser()
                         }) {
                             Icon(
@@ -228,7 +231,8 @@ class HomeFrag : Fragment() {
 
                     when  {
                      conState is HomeViewModel.GetAssignedConsumersEvent.Success && serverCallLogs is HomeViewModel.GetCallLogsFromServerEvent.Success -> {
-
+                  //       vm.reInitServerCallLogs()
+                    //     vm.reInitAssignedConsList()
                          val consumers = conState.resultText!!.map {
                              it.copy(MOBILE_NO = it.MOBILE_NO.toString().removeSuffix(".0").trim())
                          }
@@ -310,6 +314,59 @@ class HomeFrag : Fragment() {
                              }
                          }
                      }
+                        conState is HomeViewModel.GetAssignedConsumersEvent.Success && serverCallLogs is HomeViewModel.GetCallLogsFromServerEvent.Failure -> {
+                     //           vm.reInitServerCallLogs()
+                     //           vm.reInitAssignedConsList()
+                            val consumers = conState.resultText!!.map {
+                                it.copy(MOBILE_NO = it.MOBILE_NO.toString().removeSuffix(".0").trim())
+                            }
+
+
+
+
+                            if (consumers.isNotEmpty()) {
+
+
+                                // Map to categorize items
+                                val categorizedItems = mapOf(
+                                    "All" to consumers,
+                                    "Not Dialed" to consumers.filter { it.callingStatus == 0 },
+                                    "Not Connected" to consumers.filter { it.callingStatus == 1 },
+                                    "Talked" to consumers.filter { it.callingStatus == 2 },
+                                    //    "Category4" to consumers.filter { it.callingStatus == "Category4" }
+                                )
+                                item {
+                                    Column {
+                                        // ChipGroup equivalent
+                                        FlowRow(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(2.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        ) {
+                                            categorizedItems.keys.forEach { category ->
+                                                FilterChip(
+                                                    selected = selectedFilter == category,
+                                                    onClick = { selectedFilter = category },
+                                                    label = {
+                                                        Text(text = category, fontSize = 14.sp, style = TextStyle(
+                                                            color = Color.Black
+                                                        ))
+                                                    },
+                                                    modifier = Modifier.padding(2.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                items(categorizedItems[selectedFilter]!!.size) { index ->
+                                    //    val con=consumers[index]
+
+                                    ConsumerItem(consumer = categorizedItems[selectedFilter]!![index])
+                                }
+                            }
+                        }
 
                         conState is HomeViewModel.GetAssignedConsumersEvent.Loading -> {
                             item {

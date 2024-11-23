@@ -3,6 +3,7 @@ package com.apc.revenuerise.ui.screens
 
 import android.content.Context
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,6 +41,10 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.apc.revenuerise.dataClasses.Consumer
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class ConsumerDetailFrag : Fragment() {
@@ -158,7 +163,7 @@ class ConsumerDetailFrag : Fragment() {
                     InfoItem("Address:", consumer.ADDRESS)
                     InfoItem("Division Code:", consumer.DIV_CODE)
                     InfoItem("Bill Amount:", consumer.PRED_BILL.toString())
-                    InfoItem("Bill Date:", consumer.BILL_DATE.toString())
+                    InfoItem("Bill Date:", convertDate(consumer.BILL_DATE))
                     InfoItem("SDO Code:", consumer.SDO_CODE)
                     InfoItem("Substation:", consumer.SUBSTATION)
                     InfoItem("Mobile Number:", consumer.MOBILE_NO)
@@ -182,6 +187,9 @@ class ConsumerDetailFrag : Fragment() {
         }
     }
 
-
+    private fun convertDate(dateMillis: Long): String {
+        val date = Date(dateMillis)
+        return DateFormat.format("dd MMM yyyy", date).toString()
+    }
 
 }
