@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
@@ -161,6 +162,16 @@ class HomeFrag : Fragment() {
                 TopAppBar(
                     actions = {
                         IconButton(onClick = {
+                            vm.getAssignedConsumers(123)
+                            //    vm1.clearUser()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = "Refresh",
+                                tint = Color.White
+                            )
+                        }
+                        IconButton(onClick = {
 
                         //    vm1.clearUser()
                         }) {
@@ -170,6 +181,7 @@ class HomeFrag : Fragment() {
                                 tint = Color.White
                             )
                         }
+
                     },
 
 
@@ -239,6 +251,8 @@ class HomeFrag : Fragment() {
                                  } else {
                                      consumer.callingStatus = 1
                                  }
+                                 consumer.callDetails = callDetails
+
                                  // consumer to callDetails
 
                              } else {
@@ -255,11 +269,12 @@ class HomeFrag : Fragment() {
                          Log.d("consumers", consumers.toString())
                          if (consumers.isNotEmpty()) {
 
+
                              // Map to categorize items
                              val categorizedItems = mapOf(
                                  "All" to consumers,
                                  "Not Dialed" to consumers.filter { it.callingStatus == 0 },
-                                 "Connected" to consumers.filter { it.callingStatus == 1 },
+                                 "Not Connected" to consumers.filter { it.callingStatus == 1 },
                                  "Talked" to consumers.filter { it.callingStatus == 2 },
                                  //    "Category4" to consumers.filter { it.callingStatus == "Category4" }
                              )
@@ -469,22 +484,30 @@ class HomeFrag : Fragment() {
                             // Padding inside the card
                         )
                     }
-                    IconButton(
-                        onClick = {
-                            navController.navigate(HomeFragDirections.actionHomeFragToCallLogFrag(consumer.MOBILE_NO))
-                        }
-                    ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Info,
-                        //     painter = painterResource(id = Icons.Outlined.Call),
-                        contentDescription = "Share",
-                        tint = Color.Unspecified,// Prevent automatic tinting
+                    if(consumer.callDetails!=null) {
+                        if (consumer.callDetails!!.isNotEmpty()) {
+                            IconButton(
+                                onClick = {
+                                    navController.navigate(
+                                        HomeFragDirections.actionHomeFragToCallLogFrag(
+                                            consumer
+                                        )
+                                    )
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Info,
+                                    //     painter = painterResource(id = Icons.Outlined.Call),
+                                    contentDescription = "Share",
+                                    tint = Color.Unspecified,// Prevent automatic tinting
 
-                        modifier = Modifier
-                            .size(35.dp) // Icon size
-                        // Padding inside the card
-                    )
-                }
+                                    modifier = Modifier
+                                        .size(35.dp) // Icon size
+                                    // Padding inside the card
+                                )
+                            }
+                        }
+                    }
                     }
             }
         }

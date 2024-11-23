@@ -157,10 +157,11 @@ class ConsumerDetailFrag : Fragment() {
                     InfoItem("Account ID:", consumer.ACCT_ID.toString())
                     InfoItem("Address:", consumer.ADDRESS)
                     InfoItem("Division Code:", consumer.DIV_CODE)
-                    InfoItem("Latitude:", consumer.LATITUDE.toString())
-                    InfoItem("Longitude:", consumer.LONGTIUDE.toString())
+                    InfoItem("Bill Amount:", consumer.PRED_BILL.toString())
+                    InfoItem("Bill Date:", consumer.BILL_DATE.toString())
                     InfoItem("SDO Code:", consumer.SDO_CODE)
                     InfoItem("Substation:", consumer.SUBSTATION)
+                    InfoItem("Mobile Number:", consumer.MOBILE_NO)
 
                     Spacer(modifier = Modifier.weight(1f)) // Push the button to the bottom
 

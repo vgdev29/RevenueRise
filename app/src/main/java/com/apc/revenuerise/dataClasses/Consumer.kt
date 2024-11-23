@@ -31,6 +31,7 @@ data class Consumer(
     val index: Int,
     var callingStatus:Int = 0,
     var callDuration:Int = 0,
-    var callDate:Long = 0L
+    var callDate:Long = 0L,
+    var callDetails: List<ServerCallLogsResItem>?=null
 
 ): Parcelable

@@ -46,6 +46,8 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.apc.revenuerise.dataClasses.CallLogEntry
+import com.apc.revenuerise.dataClasses.Consumer
+import com.apc.revenuerise.dataClasses.ServerCallLogsResItem
 import com.apc.revenuerise.vms.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
@@ -56,7 +58,7 @@ class CallLogFrag:Fragment() {
     private lateinit var mContext: Context
     private lateinit var navController: NavController
     private val vm: HomeViewModel by viewModels()
-    private lateinit var mob:String
+    private lateinit var consumer: Consumer
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -72,8 +74,9 @@ class CallLogFrag:Fragment() {
             setContent {
                 MaterialTheme {
                     //    TestUi()
+                    consumer=CallLogFragArgs.fromBundle(requireArguments()).consumer
 
-                    CallLogList()
+                    consumer.callDetails?.let { CallLogList(it) }
                 }
             }
         }
@@ -82,33 +85,13 @@ class CallLogFrag:Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController= Navigation.findNavController(view)
-        mob=CallLogFragArgs.fromBundle(requireArguments()).mob
-        val startCalendar = Calendar.getInstance()
-        startCalendar.set(2024, Calendar.NOVEMBER, 1, 0, 0, 0)
-        val startDate = startCalendar.timeInMillis
 
-// Set end date to October 31, 2023
-        val endCalendar = Calendar.getInstance()
-        endCalendar.set(2024, Calendar.NOVEMBER, 12, 23, 59, 59)
-        val endDate = endCalendar.timeInMillis
-// List of numbers to filter by
-        val numbers = listOf(mob)
-        //val numbers = listOf("+919212033808", "01140777777")
-
-        vm.getCallLogs(
-            mContext.contentResolver,
-            startDate,
-            endDate,
-            numbers
-
-        )
 
 
     }
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun CallLogList() {
-        val callLogsState by vm.callLogState.collectAsState()
+    fun CallLogList(logs: List<ServerCallLogsResItem>) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -131,7 +114,7 @@ class CallLogFrag:Fragment() {
                     //BorderStroke(2.dp, Color.Black),
                     title = {
                         Text(
-                            "Call history for ${mob}",
+                            "Call history for ${consumer.MOBILE_NO}",
                             style = MaterialTheme.typography.titleMedium
                         )
                     },
@@ -149,83 +132,25 @@ class CallLogFrag:Fragment() {
                     .padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                when (callLogsState) {
-                    is HomeViewModel.GetCallLogsEvent.Success -> {
-                        val callLogs =
-                            (callLogsState as HomeViewModel.GetCallLogsEvent.Success).resultText
-                        callLogs?.let {
-                            item{
-                                Text(
-                                    "Total Calls: ${it.size}",
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-                            }
-                            items(it.size) { index ->
-                                CallLogCard(callLog = callLogs[index])
 
-                            }
-                        }
-                    }
+                item {
+                    Text(
+                        "Total Calls: ${logs.size}",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+                items(logs.size) { index ->
+                    CallLogCard(callLog = logs[index])
 
-                    is HomeViewModel.GetCallLogsEvent.Loading -> {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        }
-                    }
-
-                    is HomeViewModel.GetCallLogsEvent.Failure -> {
-                        val callLogsErr =
-                            (callLogsState as HomeViewModel.GetCallLogsEvent.Failure).errorText
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = callLogsErr,
-                                    color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                        }
-                    }
-
-                    HomeViewModel.GetCallLogsEvent.Empty -> {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "No consumers available",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                            }
-                        }
-                    }
                 }
 
-                /*   items(callLogs.size) { index ->
-                   CallLogCard(callLog = callLogs[index])
-               }*/
+
             }
         }
     }
 
     @Composable
-    fun CallLogCard(callLog: CallLogEntry) {
+    fun CallLogCard(callLog: ServerCallLogsResItem) {
         Card(
             onClick = {
 
@@ -252,7 +177,7 @@ class CallLogFrag:Fragment() {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "Date: ${convertDate(callLog.date)}",
+                    text = "Date: ${convertDate(callLog.CALL_DATE_TIME)}",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.padding(8.dp),
@@ -263,7 +188,7 @@ class CallLogFrag:Fragment() {
                     )
                 )
                 Text(
-                    text = "Duration: ${formatDuration(callLog.duration)}",
+                    text = "Duration: ${callLog.CALL_DURATION}",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.padding(8.dp),

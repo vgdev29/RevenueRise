@@ -20,8 +20,8 @@
         android:name="com.apc.revenuerise.ui.screens.CallLogFrag"
         android:label="CallLogFrag" >
         <argument
-            android:name="mob"
-            app:argType="string" />
+            android:name="consumer"
+            app:argType="com.apc.revenuerise.dataClasses.Consumer" />
     </fragment>
     <fragment
         android:id="@+id/consumerDetailFrag"
