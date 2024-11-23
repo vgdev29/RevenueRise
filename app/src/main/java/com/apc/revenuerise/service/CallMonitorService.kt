@@ -135,7 +135,7 @@ class CallMonitorService : Service() {
             }
         }
     }
-    fun getDate(milliSeconds: Long, dateFormat: String?): String {
+    private fun getDate(milliSeconds: Long, dateFormat: String?): String {
         // Create a DateFormatter object for displaying date in specified format.
         val formatter: SimpleDateFormat = SimpleDateFormat(dateFormat, Locale.getDefault())
 

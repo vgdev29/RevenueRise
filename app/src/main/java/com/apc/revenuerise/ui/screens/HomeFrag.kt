@@ -15,6 +15,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +33,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +44,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +54,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -63,7 +70,9 @@ import com.apc.revenuerise.ui.screens.HomeFragDirections
 import com.apc.revenuerise.vms.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 
 @AndroidEntryPoint
@@ -107,9 +116,10 @@ class HomeFrag : Fragment() {
             )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     @Composable
     fun ConsumerList(consumerViewModel: HomeViewModel) {
+        var selectedFilter by remember { mutableStateOf("All") }
 
         // Combine the two StateFlows
         val combinedState = combine(
@@ -201,6 +211,7 @@ class HomeFrag : Fragment() {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(16.dp),
                 ) {
+
                     val (conState, serverCallLogs) = combinedState.value
 
                     when  {
@@ -216,39 +227,74 @@ class HomeFrag : Fragment() {
 
 // Join lists by the common property "MOBILE_NO"
                          val joinedList = consumers.mapNotNull { consumer ->
-                             val callDetails = callLogs.find {
+                             val callDetails = callLogs.filter {
                                  it.MOBILE_NO == consumer.MOBILE_NO
                              }
-                             if (callDetails != null) {
-                                 consumer.callDuration=callDetails.CALL_DURATION
-                                 consumer.callDate=callDetails.CALL_DATE_TIME
-                                 if(callDetails.CALL_DURATION>0){
-                                     consumer.callingStatus=2
+                             if (callDetails.isNotEmpty()) {
+                                 val last = callDetails.size - 1
+                                 consumer.callDuration = callDetails[last].CALL_DURATION
+                                 consumer.callDate = callDetails[last].CALL_DATE_TIME
+                                 if (callDetails[last].CALL_DURATION > 0) {
+                                     consumer.callingStatus = 2
+                                 } else {
+                                     consumer.callingStatus = 1
                                  }
-                                 else{
-                                     consumer.callingStatus=1
-                                 }
-                                // consumer to callDetails
+                                 // consumer to callDetails
 
                              } else {
                                  null
                              }
                          }
 
-                         Log.d("joinedListSize",joinedList.size.toString())
-                         Log.d("callDetailsSize",callLogs.size.toString())
-                         Log.d("consumersSize",consumers.size.toString())
+                         Log.d("joinedListSize", joinedList.size.toString())
+                         Log.d("callDetailsSize", callLogs.size.toString())
+                         Log.d("consumersSize", consumers.size.toString())
 
-                    //     Log.d("joinedList",joinedList.toString())
-                         Log.d("callDetails",callLogs.toString())
-                         Log.d("consumers",consumers.toString())
+                         //     Log.d("joinedList",joinedList.toString())
+                         Log.d("callDetails", callLogs.toString())
+                         Log.d("consumers", consumers.toString())
+                         if (consumers.isNotEmpty()) {
 
-                         items(consumers.size) { index ->
-                         //    val con=consumers[index]
+                             // Map to categorize items
+                             val categorizedItems = mapOf(
+                                 "All" to consumers,
+                                 "Not Dialed" to consumers.filter { it.callingStatus == 0 },
+                                 "Connected" to consumers.filter { it.callingStatus == 1 },
+                                 "Talked" to consumers.filter { it.callingStatus == 2 },
+                                 //    "Category4" to consumers.filter { it.callingStatus == "Category4" }
+                             )
+                             item {
+                                 Column {
+                                     // ChipGroup equivalent
+                                     FlowRow(
+                                         modifier = Modifier
+                                             .fillMaxWidth()
+                                             .padding(2.dp),
+                                         horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                     ) {
+                                         categorizedItems.keys.forEach { category ->
+                                             FilterChip(
+                                                 selected = selectedFilter == category,
+                                                 onClick = { selectedFilter = category },
+                                                 label = {
+                                                     Text(text = category, fontSize = 14.sp, style = TextStyle(
+                                                         color = Color.Black
+                                                     ))
+                                                 },
+                                                 modifier = Modifier.padding(2.dp)
+                                             )
+                                         }
+                                     }
+                                 }
+                             }
 
-                             ConsumerItem(consumer = consumers[index])
+                             items(categorizedItems[selectedFilter]!!.size) { index ->
+                                 //    val con=consumers[index]
+
+                                 ConsumerItem(consumer = categorizedItems[selectedFilter]!![index])
+                             }
                          }
-                        }
+                     }
 
                         conState is HomeViewModel.GetAssignedConsumersEvent.Loading -> {
                             item {
@@ -338,15 +384,15 @@ class HomeFrag : Fragment() {
                 ) {
                     if(consumer.callingStatus>0)
                     Text(
-                        text = "Called on : ${consumer.callDate} for ${consumer.callDuration} s",
+                        text = "Last called on: ${getDate(consumer.callDate,"dd-MM-yy hh:mm a")} for ${consumer.callDuration} sec(s)",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(8.dp),
                         textAlign = TextAlign.Left,
-                        style = MaterialTheme.typography.labelSmall.copy(
+                        /*style = MaterialTheme.typography.labelSmall.copy(
                             letterSpacing = 1.sp,
                             fontFamily = FontFamily.Monospace
-                        )
+                        )*/
                     )
                     Text(
                         text = consumer.NAME,
@@ -443,6 +489,16 @@ class HomeFrag : Fragment() {
             }
         }
     }
+    fun getDate(milliSeconds: Long, dateFormat: String?): String {
+        // Create a DateFormatter object for displaying date in specified format.
+        val formatter: SimpleDateFormat = SimpleDateFormat(dateFormat, Locale.getDefault())
+
+        // Create a calendar object that will convert the date and time value in milliseconds to date.
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = milliSeconds
+        return formatter.format(calendar.time)
+    }
+
 
 
 }
