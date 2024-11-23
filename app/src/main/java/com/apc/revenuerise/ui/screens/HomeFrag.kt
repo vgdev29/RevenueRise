@@ -220,7 +220,16 @@ class HomeFrag : Fragment() {
                                  it.MOBILE_NO == consumer.MOBILE_NO
                              }
                              if (callDetails != null) {
-                                 consumer to callDetails
+                                 consumer.callDuration=callDetails.CALL_DURATION
+                                 consumer.callDate=callDetails.CALL_DATE_TIME
+                                 if(callDetails.CALL_DURATION>0){
+                                     consumer.callingStatus=2
+                                 }
+                                 else{
+                                     consumer.callingStatus=1
+                                 }
+                                // consumer to callDetails
+
                              } else {
                                  null
                              }
@@ -230,12 +239,13 @@ class HomeFrag : Fragment() {
                          Log.d("callDetailsSize",callLogs.size.toString())
                          Log.d("consumersSize",consumers.size.toString())
 
-                         Log.d("joinedList",joinedList.toString())
+                    //     Log.d("joinedList",joinedList.toString())
                          Log.d("callDetails",callLogs.toString())
                          Log.d("consumers",consumers.toString())
 
                          items(consumers.size) { index ->
-                             val con=consumers[index]
+                         //    val con=consumers[index]
+
                              ConsumerItem(consumer = consumers[index])
                          }
                         }
@@ -326,6 +336,18 @@ class HomeFrag : Fragment() {
                 Column(
                     modifier = Modifier.padding(8.dp)
                 ) {
+                    if(consumer.callingStatus>0)
+                    Text(
+                        text = "Called on : ${consumer.callDate} for ${consumer.callDuration} s",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(8.dp),
+                        textAlign = TextAlign.Left,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            letterSpacing = 1.sp,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    )
                     Text(
                         text = consumer.NAME,
                         fontSize = 22.sp,

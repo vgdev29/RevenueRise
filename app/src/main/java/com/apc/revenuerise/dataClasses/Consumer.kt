@@ -29,5 +29,8 @@ data class Consumer(
     val YEAR: Int,
     val id: Int,
     val index: Int,
-    val callingStatus:Int = 0
+    var callingStatus:Int = 0,
+    var callDuration:Int = 0,
+    var callDate:Long = 0L
+
 ): Parcelable
