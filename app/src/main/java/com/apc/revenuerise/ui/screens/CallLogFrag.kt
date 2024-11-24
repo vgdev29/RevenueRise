@@ -188,7 +188,7 @@ class CallLogFrag:Fragment() {
                     )
                 )
                 Text(
-                    text = "Duration: ${callLog.CALL_DURATION}",
+                    text = "Duration: ${callLog.CALL_DURATION} s",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.padding(8.dp),

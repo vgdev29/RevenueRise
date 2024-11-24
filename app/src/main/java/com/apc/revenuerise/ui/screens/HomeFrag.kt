@@ -104,7 +104,7 @@ class HomeFrag : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-  //      navController.navigate(HomeFragDirections.actionCustomerListFragToPerformSignatureFrag())
+        //      navController.navigate(HomeFragDirections.actionCustomerListFragToPerformSignatureFrag())
         vm.getAssignedConsumers(123)
         vm.getServerCallLogs()
     }
@@ -176,7 +176,7 @@ class HomeFrag : Fragment() {
                         }
                         IconButton(onClick = {
 
-                        //    vm1.clearUser()
+                            //    vm1.clearUser()
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ExitToApp,
@@ -229,96 +229,105 @@ class HomeFrag : Fragment() {
 
                     val (conState, serverCallLogs) = combinedState.value
 
-                    when  {
-                     conState is HomeViewModel.GetAssignedConsumersEvent.Success && serverCallLogs is HomeViewModel.GetCallLogsFromServerEvent.Success -> {
-                  //       vm.reInitServerCallLogs()
-                    //     vm.reInitAssignedConsList()
-                         val consumers = conState.resultText!!.map {
-                             it.copy(MOBILE_NO = it.MOBILE_NO.toString().removeSuffix(".0").trim())
-                         }
+                    when {
+                        conState is HomeViewModel.GetAssignedConsumersEvent.Success && serverCallLogs is HomeViewModel.GetCallLogsFromServerEvent.Success -> {
+                            //       vm.reInitServerCallLogs()
+                            //     vm.reInitAssignedConsList()
+                            val consumers = conState.resultText!!.map {
+                                it.copy(
+                                    MOBILE_NO = it.MOBILE_NO.toString().removeSuffix(".0").trim()
+                                )
+                            }
 
-                         val callLogs = serverCallLogs.resultText!!.map {
-                             it.copy(MOBILE_NO = it.MOBILE_NO.toString().trim())
-                         }
+                            val callLogs = serverCallLogs.resultText!!.map {
+                                it.copy(MOBILE_NO = it.MOBILE_NO.toString().trim())
+                            }
 
 // Join lists by the common property "MOBILE_NO"
-                         val joinedList = consumers.mapNotNull { consumer ->
-                             val callDetails = callLogs.filter {
-                                 it.MOBILE_NO == consumer.MOBILE_NO
-                             }
-                             if (callDetails.isNotEmpty()) {
-                                 val last = callDetails.size - 1
-                                 consumer.callDuration = callDetails[last].CALL_DURATION
-                                 consumer.callDate = callDetails[last].CALL_DATE_TIME
-                                 if (callDetails[last].CALL_DURATION > 0) {
-                                     consumer.callingStatus = 2
-                                 } else {
-                                     consumer.callingStatus = 1
-                                 }
-                                 consumer.callDetails = callDetails
+                            val joinedList = consumers.mapNotNull { consumer ->
+                                val callDetails = callLogs.filter {
+                                    it.MOBILE_NO == consumer.MOBILE_NO
+                                }
+                                if (callDetails.isNotEmpty()) {
+                                    val last = callDetails.size - 1
+                                    consumer.callDuration = callDetails[last].CALL_DURATION
+                                    consumer.callDate = callDetails[last].CALL_DATE_TIME
+                                    if (callDetails[last].CALL_DURATION > 0) {
+                                        consumer.callingStatus = 2
+                                    } else {
+                                        consumer.callingStatus = 1
+                                    }
+                                    consumer.callDetails = callDetails
 
-                                 // consumer to callDetails
+                                    // consumer to callDetails
 
-                             } else {
-                                 null
-                             }
-                         }
+                                } else {
+                                    null
+                                }
+                            }
 
-                         Log.d("joinedListSize", joinedList.size.toString())
-                         Log.d("callDetailsSize", callLogs.size.toString())
-                         Log.d("consumersSize", consumers.size.toString())
+                            Log.d("joinedListSize", joinedList.size.toString())
+                            Log.d("callDetailsSize", callLogs.size.toString())
+                            Log.d("consumersSize", consumers.size.toString())
 
-                         //     Log.d("joinedList",joinedList.toString())
-                         Log.d("callDetails", callLogs.toString())
-                         Log.d("consumers", consumers.toString())
-                         if (consumers.isNotEmpty()) {
+                            //     Log.d("joinedList",joinedList.toString())
+                            Log.d("callDetails", callLogs.toString())
+                            Log.d("consumers", consumers.toString())
+                            if (consumers.isNotEmpty()) {
 
 
-                             // Map to categorize items
-                             val categorizedItems = mapOf(
-                                 "All" to consumers,
-                                 "Not Dialed" to consumers.filter { it.callingStatus == 0 },
-                                 "Not Connected" to consumers.filter { it.callingStatus == 1 },
-                                 "Talked" to consumers.filter { it.callingStatus == 2 },
-                                 //    "Category4" to consumers.filter { it.callingStatus == "Category4" }
-                             )
-                             item {
-                                 Column {
-                                     // ChipGroup equivalent
-                                     FlowRow(
-                                         modifier = Modifier
-                                             .fillMaxWidth()
-                                             .padding(2.dp),
-                                         horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                     ) {
-                                         categorizedItems.keys.forEach { category ->
-                                             FilterChip(
-                                                 selected = selectedFilter == category,
-                                                 onClick = { selectedFilter = category },
-                                                 label = {
-                                                     Text(text = category, fontSize = 14.sp, style = TextStyle(
-                                                         color = Color.Black
-                                                     ))
-                                                 },
-                                                 modifier = Modifier.padding(2.dp)
-                                             )
-                                         }
-                                     }
-                                 }
-                             }
+                                // Map to categorize items
+                                val categorizedItems = mapOf(
+                                    "All" to consumers,
+                                    "Not Dialed" to consumers.filter { it.callingStatus == 0 },
+                                    "Not Connected" to consumers.filter { it.callingStatus == 1 },
+                                    "Talked" to consumers.filter { it.callingStatus == 2 },
+                                    //    "Category4" to consumers.filter { it.callingStatus == "Category4" }
+                                )
+                                item {
+                                    Column {
+                                        // ChipGroup equivalent
+                                        FlowRow(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(2.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        ) {
+                                            categorizedItems.keys.forEach { category ->
+                                                FilterChip(
+                                                    selected = selectedFilter == category,
+                                                    onClick = { selectedFilter = category },
+                                                    label = {
+                                                        Text(
+                                                            text = category,
+                                                            fontSize = 14.sp,
+                                                            style = TextStyle(
+                                                                color = Color.Black
+                                                            )
+                                                        )
+                                                    },
+                                                    modifier = Modifier.padding(2.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
 
-                             items(categorizedItems[selectedFilter]!!.size) { index ->
-                                 //    val con=consumers[index]
+                                items(categorizedItems[selectedFilter]!!.size) { index ->
+                                    //    val con=consumers[index]
 
-                                 ConsumerItem(consumer = categorizedItems[selectedFilter]!![index])
-                             }
-                         }
-                     }
+                                    ConsumerItem(consumer = categorizedItems[selectedFilter]!![index])
+                                }
+                            }
+                        }
+
                         conState is HomeViewModel.GetAssignedConsumersEvent.Success && serverCallLogs is HomeViewModel.GetCallLogsFromServerEvent.Failure -> {
-                     //           vm.reInitServerCallLogs()
-                     //           vm.reInitAssignedConsList()
+                            //           vm.reInitServerCallLogs()
+                            //           vm.reInitAssignedConsList()
                             val consumers = conState.resultText!!.map {
-                                it.copy(MOBILE_NO = it.MOBILE_NO.toString().removeSuffix(".0").trim())
+                                it.copy(
+                                    MOBILE_NO = it.MOBILE_NO.toString().removeSuffix(".0").trim()
+                                )
                             }
 
 
@@ -349,9 +358,13 @@ class HomeFrag : Fragment() {
                                                     selected = selectedFilter == category,
                                                     onClick = { selectedFilter = category },
                                                     label = {
-                                                        Text(text = category, fontSize = 14.sp, style = TextStyle(
-                                                            color = Color.Black
-                                                        ))
+                                                        Text(
+                                                            text = category,
+                                                            fontSize = 14.sp,
+                                                            style = TextStyle(
+                                                                color = Color.Black
+                                                            )
+                                                        )
                                                     },
                                                     modifier = Modifier.padding(2.dp)
                                                 )
@@ -381,7 +394,7 @@ class HomeFrag : Fragment() {
                             }
                         }
 
-                     conState is HomeViewModel.GetAssignedConsumersEvent.Failure -> {
+                        conState is HomeViewModel.GetAssignedConsumersEvent.Failure -> {
                             item {
                                 Box(
                                     modifier = Modifier
@@ -398,7 +411,7 @@ class HomeFrag : Fragment() {
                             }
                         }
 
-                       conState is HomeViewModel.GetAssignedConsumersEvent.Empty -> {
+                        conState is HomeViewModel.GetAssignedConsumersEvent.Empty -> {
                             item {
                                 Box(
                                     modifier = Modifier
@@ -431,19 +444,23 @@ class HomeFrag : Fragment() {
             Card(
                 onClick = {
 
-                    val bundle=Bundle()
-                    bundle.putParcelable("consumer",consumer)
-               //     navController.navigate(R.id.action_homeFrag_to_consumerDetailFrag,bundle)
+                    val bundle = Bundle()
+                    bundle.putParcelable("consumer", consumer)
+                    //     navController.navigate(R.id.action_homeFrag_to_consumerDetailFrag,bundle)
                     try {
-                        navController.navigate(HomeFragDirections.actionHomeFragToConsumerDetailFrag(consumer))
+                        navController.navigate(
+                            HomeFragDirections.actionHomeFragToConsumerDetailFrag(
+                                consumer
+                            )
+                        )
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
 
 
                     //      vm1.consumer.value=consumer
-               //     vm1.inspectionData.value?.conId = consumer.id
-                //    navController.navigate(R.id.action_customerListFrag_to_actionListFrag)
+                    //     vm1.inspectionData.value?.conId = consumer.id
+                    //    navController.navigate(R.id.action_customerListFrag_to_actionListFrag)
                 },
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -454,18 +471,23 @@ class HomeFrag : Fragment() {
                 Column(
                     modifier = Modifier.padding(8.dp)
                 ) {
-                    if(consumer.callingStatus>0)
-                    Text(
-                        text = "Last called on: ${getDate(consumer.callDate,"dd-MM-yy hh:mm a")} for ${consumer.callDuration} sec(s)",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(8.dp),
-                        textAlign = TextAlign.Left,
-                        /*style = MaterialTheme.typography.labelSmall.copy(
-                            letterSpacing = 1.sp,
-                            fontFamily = FontFamily.Monospace
-                        )*/
-                    )
+                    if (consumer.callingStatus > 0)
+                        Text(
+                            text = "Last called on: ${
+                                getDate(
+                                    consumer.callDate,
+                                    "dd-MM-yy hh:mm a"
+                                )
+                            } for ${consumer.callDuration} sec(s)",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(8.dp),
+                            textAlign = TextAlign.Left,
+                            /*style = MaterialTheme.typography.labelSmall.copy(
+                                letterSpacing = 1.sp,
+                                fontFamily = FontFamily.Monospace
+                            )*/
+                        )
                     Text(
                         text = consumer.NAME,
                         fontSize = 22.sp,
@@ -510,10 +532,13 @@ class HomeFrag : Fragment() {
                     .offset(x = 24.dp, y = 0.dp)
                     .clip(RoundedCornerShape(8.dp)) // Circular image shape
                     .border(2.dp, Color.Black, RoundedCornerShape(8.dp)) // Border around the image
-                    .shadow(2.dp, RoundedCornerShape(8.dp)),// Offset to float half outside the main card
+                    .shadow(
+                        2.dp,
+                        RoundedCornerShape(8.dp)
+                    ),// Offset to float half outside the main card
 
                 // Optional border
-                 shape = RoundedCornerShape(8.dp), // Circular shape to mimic a FAB
+                shape = RoundedCornerShape(8.dp), // Circular shape to mimic a FAB
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp), // Elevation to float it above the card
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
@@ -541,7 +566,7 @@ class HomeFrag : Fragment() {
                             // Padding inside the card
                         )
                     }
-                    if(consumer.callDetails!=null) {
+                    if (consumer.callDetails != null) {
                         if (consumer.callDetails!!.isNotEmpty()) {
                             IconButton(
                                 onClick = {
@@ -565,10 +590,11 @@ class HomeFrag : Fragment() {
                             }
                         }
                     }
-                    }
+                }
             }
         }
     }
+
     fun getDate(milliSeconds: Long, dateFormat: String?): String {
         // Create a DateFormatter object for displaying date in specified format.
         val formatter: SimpleDateFormat = SimpleDateFormat(dateFormat, Locale.getDefault())

@@ -9,9 +9,11 @@ import android.database.Cursor
 import android.location.Address
 import android.location.Geocoder
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.os.PowerManager
 import android.provider.CallLog
 import android.provider.Settings
 import android.util.Log
@@ -127,23 +129,13 @@ class MainActivity : AppCompatActivity() , NavController.OnDestinationChangedLis
             } else {
                 val intent = Intent(this, CallMonitorService::class.java)
                 startService(intent)
-                val startCalendar = Calendar.getInstance()
-                startCalendar.set(2024, Calendar.NOVEMBER, 1, 0, 0, 0)
-                val startDate = startCalendar.timeInMillis
-
-// Set end date to October 31, 2023
-                val endCalendar = Calendar.getInstance()
-                endCalendar.set(2024, Calendar.NOVEMBER, 12, 23, 59, 59)
-                val endDate = endCalendar.timeInMillis
-// List of numbers to filter by
-                val numbers = listOf("+919212033808", "01140777777")
-
-// Call the function to get filtered call logs by date range and numbers
-                val callLogsEntries =
-                    getFilteredCallLogsByNumbers(contentResolver, startDate, endDate, numbers)
-                for (entry in callLogsEntries) {
-                    println("Number: ${entry.number}, Type: ${entry.type}, Date: ${entry.date}, Duration: ${entry.duration}")
+                val pm = getSystemService(PowerManager::class.java)
+                if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                    val intent2 = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                        .setData(Uri.parse("package:$packageName"))
+                    startActivity(intent2)
                 }
+
             }
         }
         //    enableEdgeToEdge()

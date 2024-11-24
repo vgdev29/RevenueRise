@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -107,7 +109,23 @@ class ConsumerDetailFrag : Fragment() {
                         )
                     }
                 )
+
             },
+            bottomBar = {
+                BottomAppBar {
+                    Button(
+                        onClick = {
+                            //   navController.navigate(ConsumerDetailFragDirections.actionConsumerDetailFragToPhotoFrag())
+                        },
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text("Next")
+                    }
+                }
+            }
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -120,15 +138,15 @@ class ConsumerDetailFrag : Fragment() {
                                 Color(0xFF00D2FF)
                             ),
                             startY = 0.0f,
-                            endY = 1000.0f
+                            //       endY = 1000.0f
                         )
                     )
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp) // Add spacing between items
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp) // Add spacing between items
                 ) {
                     // Reusable composable for displaying a heading-content pair
                     @Composable
@@ -144,14 +162,16 @@ class ConsumerDetailFrag : Fragment() {
                                 text = heading,
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.Gray
+                                    color = Color.Gray,
+                                    fontSize = 12.sp
                                 )
                             )
                             Text(
                                 text = content,
                                 style = MaterialTheme.typography.bodyLarge.copy(
                                     fontWeight = FontWeight.Medium,
-                                    color = Color.Black
+                                    color = Color.Black,
+                                    fontSize = 14.sp
                                 )
                             )
                         }
@@ -170,17 +190,7 @@ class ConsumerDetailFrag : Fragment() {
 
                     Spacer(modifier = Modifier.weight(1f)) // Push the button to the bottom
 
-                    Button(
-                        onClick = {
-                         //   navController.navigate(ConsumerDetailFragDirections.actionConsumerDetailFragToPhotoFrag())
-                                  },
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text("Next")
-                    }
+
                 }
             }
 
