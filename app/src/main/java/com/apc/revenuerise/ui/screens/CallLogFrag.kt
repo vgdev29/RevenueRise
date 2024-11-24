@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontFamily
@@ -95,40 +98,51 @@ class CallLogFrag:Fragment() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    actions = {
-                        IconButton(onClick = {
-                            navController.navigateUp()
-
-                            //    vm1.clearUser()
-                        }) {
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                                contentDescription = "Logout",
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
                                 tint = Color.White
                             )
                         }
                     },
-
-
                     modifier = Modifier.border(2.dp, Color.Black),
-                    //BorderStroke(2.dp, Color.Black),
-                    title = {
-                        Text(
-                            "Call history for ${consumer.MOBILE_NO}",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
                     colors = TopAppBarDefaults.smallTopAppBarColors(
                         containerColor = Color(0xFF3A7BD5),
                         titleContentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                    ),
+                    title = {
+                        Text(
+                            "Call history : ${consumer.MOBILE_NO}",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White
+                        )
+                    }
                 )
-            }
+
+            },
         ) { innerPadding ->
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFFFF9800),
+
+                                Color(0xFFB9B9B9),
+
+                                //         Color(0xFFFF9800),
+                                //  Color(0xFFFFFFFF),
+                                Color(0xFFFFFFFF)
+
+                            ), // Gradient colors
+                            startY = 0.0f,
+                            //         endY = 1000.0f
+                        )
+                    )
                     .padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {

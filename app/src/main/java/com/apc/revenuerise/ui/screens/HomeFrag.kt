@@ -210,11 +210,17 @@ class HomeFrag : Fragment() {
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                Color(0xFF3A7BD5),
-                                Color(0xFF00D2FF)
+                                Color(0xFFFF9800),
+
+                                Color(0xFFB9B9B9),
+
+                                //         Color(0xFFFF9800),
+                                //  Color(0xFFFFFFFF),
+                                Color(0xFFFFFFFF)
+
                             ), // Gradient colors
                             startY = 0.0f,
-                            endY = 1000.0f
+                            //         endY = 1000.0f
                         )
                     )
             ) {
