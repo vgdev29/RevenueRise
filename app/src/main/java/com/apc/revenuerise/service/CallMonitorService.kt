@@ -58,6 +58,7 @@ class CallMonitorService : Service() {
         // Initialize TelephonyManager and register the callback
         telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Log.d("CallMonitorService", ">=S Registering telephony callback")
             telephonyCallback = object : TelephonyCallback(), TelephonyCallback.CallStateListener {
                 override fun onCallStateChanged(state: Int) {
                     handleCallState(state)
@@ -69,6 +70,8 @@ class CallMonitorService : Service() {
                 telephonyCallback
             )
         } else {
+            Log.d("CallMonitorService", "<S Registering telephony callback")
+
             telephonyManager.listen(object : PhoneStateListener() {
                 override fun onCallStateChanged(state: Int, phoneNumber: String?) {
                     handleCallState(state)

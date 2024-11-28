@@ -109,7 +109,7 @@ class CallLogFrag:Fragment() {
                     },
                     modifier = Modifier.border(2.dp, Color.Black),
                     colors = TopAppBarDefaults.smallTopAppBarColors(
-                        containerColor = Color(0xFF3A7BD5),
+                        containerColor = Color(0xFFFF9800),
                         titleContentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     title = {

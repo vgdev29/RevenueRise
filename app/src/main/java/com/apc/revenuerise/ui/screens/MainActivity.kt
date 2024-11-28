@@ -72,19 +72,16 @@ class MainActivity : AppCompatActivity() , NavController.OnDestinationChangedLis
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         navController = Navigation.findNavController(binding.root.findViewById(R.id.fragment))
         navController.setGraph(R.navigation.main_nav_graph)
+
+
         permissionHelper = PermissionHelper(this)
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             perms = arrayOf(
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                android.Manifest.permission.CAMERA,
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+
                 android.Manifest.permission.INTERNET,
-                android.Manifest.permission.ACCESS_NETWORK_STATE,
                 android.Manifest.permission.READ_PHONE_STATE,
                 android.Manifest.permission.READ_CALL_LOG,
 
@@ -93,22 +90,17 @@ class MainActivity : AppCompatActivity() , NavController.OnDestinationChangedLis
 
                 )
         } else {
-            perms = arrayOf(
-                android.Manifest.permission.READ_MEDIA_IMAGES,
-                android.Manifest.permission.READ_MEDIA_VIDEO,
-                android.Manifest.permission.READ_MEDIA_AUDIO,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                android.Manifest.permission.CAMERA,
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.INTERNET,
-                android.Manifest.permission.ACCESS_NETWORK_STATE,
-                android.Manifest.permission.READ_PHONE_STATE,
-                android.Manifest.permission.READ_CALL_LOG,
-                android.Manifest.permission.FOREGROUND_SERVICE,
-                android.Manifest.permission.POST_NOTIFICATIONS,
+                perms = arrayOf(
 
-                )
+                    android.Manifest.permission.INTERNET,
+                    android.Manifest.permission.READ_PHONE_STATE,
+                    android.Manifest.permission.READ_CALL_LOG,
+                    android.Manifest.permission.POST_NOTIFICATIONS,
+
+
+
+                    )
+
         }
 
 
@@ -117,7 +109,7 @@ class MainActivity : AppCompatActivity() , NavController.OnDestinationChangedLis
         if (!permissionHelper.checkPermissions(perms)) {
             permissionHelper.requestPermissions(perms, 100)
         } else {
-            lastLocation
+           // lastLocation
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CALL_LOG)
                 != PackageManager.PERMISSION_GRANTED
             ) {
@@ -128,7 +120,12 @@ class MainActivity : AppCompatActivity() , NavController.OnDestinationChangedLis
                 )
             } else {
                 val intent = Intent(this, CallMonitorService::class.java)
-                startService(intent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent)
+                }
+                else
+                    startService(intent)
+
                 val pm = getSystemService(PowerManager::class.java)
                 if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                     val intent2 = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
@@ -168,8 +165,21 @@ class MainActivity : AppCompatActivity() , NavController.OnDestinationChangedLis
 
         if (requestCode == 100 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Granted !", Toast.LENGTH_LONG).show()
-            lastLocation
+         //   lastLocation
             // The user granted the permission.
+            val intent = Intent(this, CallMonitorService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            }
+            else
+                startService(intent)
+
+            val pm = getSystemService(PowerManager::class.java)
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                val intent2 = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                    .setData(Uri.parse("package:$packageName"))
+                startActivity(intent2)
+            }
         } else {
             Toast.makeText(this, "Denied !", Toast.LENGTH_LONG).show()
             finish()

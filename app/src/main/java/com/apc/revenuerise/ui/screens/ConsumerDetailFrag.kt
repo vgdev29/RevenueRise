@@ -98,7 +98,7 @@ class ConsumerDetailFrag : Fragment() {
                     },
                     modifier = Modifier.border(2.dp, Color.Black),
                     colors = TopAppBarDefaults.smallTopAppBarColors(
-                        containerColor = Color(0xFF3A7BD5),
+                        containerColor = Color(0xFFFF9800),
                         titleContentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     title = {
@@ -113,7 +113,7 @@ class ConsumerDetailFrag : Fragment() {
             },
             bottomBar = {
                 BottomAppBar {
-                    Button(
+                    /*Button(
                         onClick = {
                             //   navController.navigate(ConsumerDetailFragDirections.actionConsumerDetailFragToPhotoFrag())
                         },
@@ -123,7 +123,7 @@ class ConsumerDetailFrag : Fragment() {
                             .fillMaxWidth()
                     ) {
                         Text("Next")
-                    }
+                    }*/
                 }
             }
         ) { innerPadding ->
