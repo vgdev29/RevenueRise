@@ -37,6 +37,8 @@
         android:label="LandingFrag" >
         <action
             android:id="@+id/action_landingFrag_to_homeFrag"
-            app:destination="@id/homeFrag" />
+            app:destination="@id/homeFrag"
+            app:popUpTo="@id/homeFrag"
+            app:popUpToInclusive="false" />
     </fragment>
 </navigation>

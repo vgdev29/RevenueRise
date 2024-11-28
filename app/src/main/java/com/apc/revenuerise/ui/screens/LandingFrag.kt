@@ -110,7 +110,7 @@ class LandingFrag: Fragment() {
     @Composable
     fun SplashScreen() {
         LaunchedEffect(Unit) {
-            delay(5000)
+            delay(6000)
             navController.navigate(LandingFragDirections.actionLandingFragToHomeFrag())
 // Delay for 3000 milliseconds (3 seconds)
         }
@@ -195,12 +195,12 @@ class LandingFrag: Fragment() {
                 ) {
                     Text(
 
-                        text = "MVVNL Revenue Rise App", // Replace with your title
+                        text = "MVVNL", // Replace with your title
                         fontSize = 32.sp, // Increased font size for better visibility
                         fontWeight = FontWeight.ExtraBold, // Bold text for emphasis
 
                         modifier = Modifier
-                            .padding(top = 16.dp),
+                            .padding(8.dp),
                         //      .shadow(4.dp, shape = RectangleShape, clip = false), // Add subtle shadow for a 3D effect
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.headlineMedium.copy(
@@ -210,7 +210,7 @@ class LandingFrag: Fragment() {
                     )
 
                 }
-                Spacer(modifier = Modifier.height(200.dp))
+                Spacer(modifier = Modifier.height(120.dp))
 
                 Image(
                     alignment = Alignment.Center,
@@ -225,6 +225,56 @@ class LandingFrag: Fragment() {
                         .border(4.dp, Color.Yellow, CircleShape) // Border around the image
                         .shadow(8.dp, CircleShape) // Add shadow to the image
                 )
+                Card(
+
+                    modifier = Modifier
+                        .padding(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Yellow),
+                    border = BorderStroke(2.dp, Color(0xFF3F51B5))
+                    // Padding around the text container
+
+                ) {
+                    Text(
+                        text = "REVENUE RECOVERY", // Replace with your title
+                        fontSize = 24.sp, // Increased font size for better visibility
+                        fontWeight = FontWeight.ExtraBold, // Bold text for emphasis
+
+                        modifier = Modifier
+                            .padding(8.dp),
+                        //      .shadow(4.dp, shape = RectangleShape, clip = false), // Add subtle shadow for a 3D effect
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            letterSpacing = 1.5.sp, // Spacing for better readability
+                            fontFamily = FontFamily.Monospace // Apply a serif font for a more formal feel
+                        )
+                    )
+
+                }
+                Card(
+
+                    modifier = Modifier
+                        .padding(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Yellow),
+                    border = BorderStroke(2.dp, Color(0xFF3F51B5))
+                    // Padding around the text container
+
+                ) {
+                    Text(
+                        text = "AI and ML driven solution for REVENUE ASSURANCE & REVENUE PROTECTION", // Replace with your title
+                        fontSize = 18.sp, // Increased font size for better visibility
+                        fontWeight = FontWeight.ExtraBold, // Bold text for emphasis
+
+                        modifier = Modifier
+                            .padding(8.dp),
+                        //      .shadow(4.dp, shape = RectangleShape, clip = false), // Add subtle shadow for a 3D effect
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            letterSpacing = 1.5.sp, // Spacing for better readability
+                            fontFamily = FontFamily.Monospace // Apply a serif font for a more formal feel
+                        )
+                    )
+
+                }
 
 
 
