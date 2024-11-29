@@ -105,7 +105,7 @@ class HomeFrag : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
         //      navController.navigate(HomeFragDirections.actionCustomerListFragToPerformSignatureFrag())
-        vm.getAssignedConsumers(123)
+
         vm.getServerCallLogs()
     }
 
@@ -120,6 +120,29 @@ class HomeFrag : Fragment() {
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     @Composable
     fun ConsumerList(consumerViewModel: HomeViewModel) {
+        val user by vm.userState.collectAsState()
+
+
+        when (user) {
+            "-1" -> {
+                // Show loading spinner while user state is being loaded
+                CircularProgressIndicator()
+            }
+
+            else -> {
+                if (user == null) {
+                    Log.d("USER>>","NULL")
+                    // User is not logged in, navigate to LoginScreen
+                    navController.navigate(HomeFragDirections.actionHomeFragToLoginFrag())
+
+                } else {
+                    // User is logged in, navigate to HomeScreen
+                    vm.getAssignedConsumers(user!!)
+
+                }
+            }
+        }
+
         var selectedFilter by remember { mutableStateOf("All") }
 
         // Combine the two StateFlows
@@ -161,22 +184,24 @@ class HomeFrag : Fragment() {
             topBar = {
                 TopAppBar(
                     actions = {
-                        IconButton(onClick = {
-                            vm.reInitAssignedConsList()
-                            vm.reInitServerCallLogs()
-                            vm.getAssignedConsumers(123)
-                            vm.getServerCallLogs()
-                            //    vm1.clearUser()
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.Refresh,
-                                contentDescription = "Refresh",
-                                tint = Color.White
-                            )
+                        if(user!=null && user!="-1") {
+                            IconButton(onClick = {
+                                vm.reInitAssignedConsList()
+                                vm.reInitServerCallLogs()
+                                vm.getAssignedConsumers(user!!)
+                                vm.getServerCallLogs()
+                                //    vm1.clearUser()
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Refresh,
+                                    contentDescription = "Refresh",
+                                    tint = Color.White
+                                )
+                            }
                         }
                         IconButton(onClick = {
 
-                            //    vm1.clearUser()
+                                vm.clearUser()
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ExitToApp,
@@ -614,9 +639,12 @@ class HomeFrag : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        vm.reInitAssignedConsList()
-        vm.reInitServerCallLogs()
-        vm.getAssignedConsumers(123)
-        vm.getServerCallLogs()
+        if(vm.userState.value.toString()!="-1"){
+            vm.reInitAssignedConsList()
+            vm.reInitServerCallLogs()
+            vm.getAssignedConsumers(vm.userState.value.toString())
+            vm.getServerCallLogs()
+        }
+
     }
 }

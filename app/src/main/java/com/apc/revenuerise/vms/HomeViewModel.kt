@@ -1,28 +1,58 @@
 package com.apc.revenuerise.vms
 
 import android.content.ContentResolver
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.dataClasses.Consumer
-import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
+import com.apc.revenuerise.dataClasses.LoginRequest
+import com.apc.revenuerise.dataClasses.LoginResponse
 import com.apc.revenuerise.dataClasses.ServerCallLogsRes
+import com.apc.revenuerise.dataStore.UserPreferences
 import com.apc.revenuerise.dispatchers.DispatcherTypes
 import com.apc.revenuerise.repository.home.HomeDefRepo
 import com.apc.solarsuvidha.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: HomeDefRepo,
-    private val dispatchers: DispatcherTypes
+    private val dispatchers: DispatcherTypes,
+    private val userPreferences: UserPreferences
+
 ) : ViewModel() {
 
+    private val _userState = MutableStateFlow<String?>("-1")
 
+    val userState: StateFlow<String?> = _userState
+
+    init {
+        // Load user ID on ViewModel initialization
+        viewModelScope.launch {
+            _userState.value = userPreferences.user.first()
+        }
+    }
+
+    fun saveUser(userId: String) {
+        viewModelScope.launch {
+            Log.d("USER>>vm", "saveUser: $userId")
+            userPreferences.saveUser(userId)
+            _userState.value = userId
+        }
+    }
+
+    fun clearUser() {
+        viewModelScope.launch {
+            userPreferences.clearUser()
+            _userState.value = null
+        }
+    }
 
     // Sealed class to represent different states of the login process
     sealed class GetAssignedConsumersEvent {
@@ -39,7 +69,7 @@ class HomeViewModel @Inject constructor(
     val consListState: StateFlow<GetAssignedConsumersEvent> = _consListState
 
     // Function to handle user login
-    fun getAssignedConsumers(uid: Int) {
+    fun getAssignedConsumers(uid: String) {
         viewModelScope.launch(dispatchers.io) {
             _consListState.value = GetAssignedConsumersEvent.Loading // Set loading state
             when (val result = repository.getAssignedConsumers(uid)) {
@@ -153,4 +183,41 @@ class HomeViewModel @Inject constructor(
 
 
 
+    // Sealed class to represent different states of the login process
+    sealed class LoginEvent {
+        object Empty : LoginEvent()
+        object Loading : LoginEvent()
+        data class Success(val resultText: LoginResponse?) : LoginEvent()
+        data class Failure(val errorText: String) : LoginEvent()
+    }
+    // Mutable StateFlow to hold the current state of login
+    private val _loginState = MutableStateFlow<LoginEvent>(LoginEvent.Empty)
+
+    // Exposed immutable StateFlow for composable to observe
+    val loginState: StateFlow<LoginEvent> = _loginState
+
+    // Function to handle user login
+    fun loginUser(loginRequest: LoginRequest) {
+        viewModelScope.launch(dispatchers.io) {
+            _loginState.value = LoginEvent.Loading
+            when (val result = repository.loginUser(loginRequest)) {
+                is Resource.Success -> {
+                    if (!result.data!!.error) {
+                        _loginState.value = LoginEvent.Success(result.data)
+                    } else {
+                        _loginState.value = LoginEvent.Failure(result.data.message ?: "Unknown Error")
+                    }
+                }
+                is Resource.Error -> {
+                    _loginState.value = LoginEvent.Failure(result.message ?: "Network Error")
+                }
+            }
+        }
+    }
+
+
+    // Reinitialize login state
+    fun reInitLogin() {
+        _loginState.value = LoginEvent.Empty
+    }
 }

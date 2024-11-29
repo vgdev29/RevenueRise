@@ -8,6 +8,8 @@ import com.apc.revenuerise.api.HomeApi
 import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
+import com.apc.revenuerise.dataClasses.LoginRequest
+import com.apc.revenuerise.dataClasses.LoginResponse
 import com.apc.revenuerise.dataClasses.PostCallRecordRes
 import com.apc.revenuerise.dataClasses.ServerCallLogsRes
 import com.apc.revenuerise.dispatchers.DispatcherTypes
@@ -23,7 +25,7 @@ class HomeDefRepo @Inject constructor(
     private val dispatcherProvider: DispatcherTypes
 ) : HomeMainRepo {
 
-    override suspend fun getAssignedConsumers(uid: Int)
+    override suspend fun getAssignedConsumers(uid: String)
     : Resource<List<Consumer>> = withContext(dispatcherProvider.io) {
         try {
             // Attempt to login with the remote server
@@ -203,6 +205,31 @@ class HomeDefRepo @Inject constructor(
         } catch (e: IOException) {
             // Network issue, use local database
             //  val res = userDao.getUser(loginReq.username)
+            Resource.Error(e.message)
+
+        }
+    }
+
+    override suspend fun loginUser(
+        loginRequest: LoginRequest
+    ): Resource<LoginResponse> = withContext(dispatcherProvider.io) {
+        try {
+            // Attempt to login with the remote server
+            val response = apiService.loginUser(loginRequest)
+            val result = response.body()
+            if (response.isSuccessful && result != null && result.success) {
+                Log.d("RETRO>>", response.code().toString())
+                Resource.Success(result)
+            } else {
+
+                // On failure, fallback to local database
+                Log.d("RETRO>>", "Error")
+
+                Resource.Error(response.message())
+
+            }
+        } catch (e: IOException) {
+            // Network issue, use local database
             Resource.Error(e.message)
 
         }

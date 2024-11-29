@@ -4,6 +4,8 @@ import android.content.ContentResolver
 import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
+import com.apc.revenuerise.dataClasses.LoginRequest
+import com.apc.revenuerise.dataClasses.LoginResponse
 import com.apc.revenuerise.dataClasses.PostCallRecordRes
 import com.apc.revenuerise.dataClasses.ServerCallLogsRes
 import com.apc.revenuerise.vms.HomeViewModel
@@ -11,7 +13,7 @@ import com.apc.solarsuvidha.util.Resource
 
 
 interface HomeMainRepo {
-    suspend fun getAssignedConsumers(uid: Int): Resource<List<Consumer>>
+    suspend fun getAssignedConsumers(uid: String): Resource<List<Consumer>>
 
     suspend fun getCallLogs(contentResolver: ContentResolver,
                             startDate: Long,
@@ -27,6 +29,8 @@ interface HomeMainRepo {
 
     suspend fun getServerCallRecord():
             Resource<ServerCallLogsRes>
+
+    suspend fun loginUser(loginRequest: LoginRequest): Resource<LoginResponse>
 
 
 
