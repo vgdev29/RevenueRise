@@ -247,7 +247,7 @@ class LoginFrag : Fragment() {
                                     .weight(2f)
                                     .padding(8.dp),
                                 textAlign = TextAlign.Center,
-                                fontSize = 36.sp, // Increased font size for better visibility
+                                fontSize = 28.sp, // Increased font size for better visibility
                                 fontWeight = FontWeight.ExtraBold, // Bold text for emphasis
 
 

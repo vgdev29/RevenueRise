@@ -133,6 +133,7 @@ class HomeFrag : Fragment() {
                 if (user == null) {
                     Log.d("USER>>","NULL")
                     // User is not logged in, navigate to LoginScreen
+
                     navController.navigate(HomeFragDirections.actionHomeFragToLoginFrag())
 
                 } else {
