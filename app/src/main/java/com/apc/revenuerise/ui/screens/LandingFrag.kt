@@ -111,7 +111,7 @@ class LandingFrag: Fragment() {
     fun SplashScreen() {
         LaunchedEffect(Unit) {
             delay(6000)
-            navController.navigate(LandingFragDirections.actionLandingFragToHomeFrag())
+            navController.navigate(LandingFragDirections.actionLandingFragToSelectorFrag())
 // Delay for 3000 milliseconds (3 seconds)
         }
         Scaffold(

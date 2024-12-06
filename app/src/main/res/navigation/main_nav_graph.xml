@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_homeFrag_to_loginFrag"
             app:destination="@id/loginFrag" />
+        <action
+            android:id="@+id/action_homeFrag_to_filedVisitFrag"
+            app:destination="@id/filedVisitFrag" />
     </fragment>
     <fragment
         android:id="@+id/callLogFrag"
@@ -43,6 +46,12 @@
             app:destination="@id/homeFrag"
             app:popUpTo="@id/homeFrag"
             app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_landingFrag_to_filedVisitFrag"
+            app:destination="@id/filedVisitFrag" />
+        <action
+            android:id="@+id/action_landingFrag_to_selectorFrag"
+            app:destination="@id/selectorFrag" />
     </fragment>
     <fragment
         android:id="@+id/loginFrag"
@@ -53,4 +62,16 @@
             app:destination="@id/homeFrag"
             app:popUpTo="@id/homeFrag" />
     </fragment>
+    <fragment
+        android:id="@+id/filedVisitFrag"
+        android:name="com.apc.revenuerise.ui.screens.FiledVisitFrag"
+        android:label="FiledVisitFrag" >
+        <action
+            android:id="@+id/action_filedVisitFrag_to_loginFrag"
+            app:destination="@id/loginFrag" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectorFrag"
+        android:name="com.apc.revenuerise.ui.screens.SelectorFrag"
+        android:label="SelectorFrag" />
 </navigation>

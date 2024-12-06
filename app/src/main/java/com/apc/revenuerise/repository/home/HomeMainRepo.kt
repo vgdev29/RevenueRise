@@ -1,6 +1,8 @@
 package com.apc.revenuerise.repository.home
 
 import android.content.ContentResolver
+import android.util.Log
+import com.apc.lossreduction.dataClasses.geocode.GeocodeResponse
 import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.dataClasses.Consumer
 import com.apc.revenuerise.dataClasses.GetConsumersForCallingRes
@@ -10,9 +12,13 @@ import com.apc.revenuerise.dataClasses.PostCallRecordRes
 import com.apc.revenuerise.dataClasses.ServerCallLogsRes
 import com.apc.revenuerise.vms.HomeViewModel
 import com.apc.solarsuvidha.util.Resource
+import kotlinx.coroutines.withContext
+import java.io.IOException
 
 
 interface HomeMainRepo {
+
+
     suspend fun getAssignedConsumers(uid: String): Resource<List<Consumer>>
 
     suspend fun getCallLogs(contentResolver: ContentResolver,
@@ -32,6 +38,7 @@ interface HomeMainRepo {
 
     suspend fun loginUser(loginRequest: LoginRequest): Resource<LoginResponse>
 
+    suspend fun geocode(key: String, address: String): Resource<GeocodeResponse>
 
 
 }

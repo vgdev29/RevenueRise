@@ -4,6 +4,8 @@ import android.content.ContentResolver
 import android.database.Cursor
 import android.provider.CallLog
 import android.util.Log
+import com.apc.lossreduction.dataClasses.geocode.GeocodeResponse
+import com.apc.revenuerise.api.GeoApi
 import com.apc.revenuerise.api.HomeApi
 import com.apc.revenuerise.dataClasses.CallLogEntry
 import com.apc.revenuerise.dataClasses.Consumer
@@ -22,8 +24,35 @@ import javax.inject.Singleton
 @Singleton
 class HomeDefRepo @Inject constructor(
     private val apiService: HomeApi,
+    private val geoApiService:GeoApi,
     private val dispatcherProvider: DispatcherTypes
 ) : HomeMainRepo {
+    override suspend fun geocode(key:String,address:String)
+            : Resource<GeocodeResponse> = withContext(dispatcherProvider.io) {
+        try {
+            // Attempt to login with the remote server
+            val response = geoApiService.geocode(key,address)
+            val result = response.body()
+            if (response.isSuccessful && result != null) {
+                Log.d("RETRO>>", response.code().toString())
+                Resource.Success(result)
+            } else {
+
+                // On failure, fallback to local database
+                Log.d("RETRO>>", "Error")
+
+                //   val res = consumerDao.getUser(loginReq.username)
+                Resource.Error(response.message())
+
+            }
+        } catch (e: IOException) {
+            // Network issue, use local database
+            //  val res = userDao.getUser(loginReq.username)
+            Resource.Error(e.message)
+
+        }
+    }
+
 
     override suspend fun getAssignedConsumers(uid: String)
     : Resource<List<Consumer>> = withContext(dispatcherProvider.io) {

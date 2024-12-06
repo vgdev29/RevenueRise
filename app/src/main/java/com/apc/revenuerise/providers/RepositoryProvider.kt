@@ -1,5 +1,6 @@
 package com.apc.revenuerise.providers
 
+import com.apc.revenuerise.api.GeoApi
 import com.apc.revenuerise.api.HomeApi
 import com.apc.revenuerise.dispatchers.DispatcherTypes
 import com.apc.revenuerise.repository.home.HomeDefRepo
@@ -19,6 +20,6 @@ object RepositoryProvider {
 
     @Singleton
     @Provides
-    fun provideHomeRepository(api: HomeApi, dispatcherProvider: DispatcherTypes): HomeMainRepo =
-        HomeDefRepo(api, dispatcherProvider)
+    fun provideHomeRepository(api: HomeApi,geoApi: GeoApi, dispatcherProvider: DispatcherTypes): HomeMainRepo =
+        HomeDefRepo(api,geoApi, dispatcherProvider)
 }

@@ -1,5 +1,6 @@
 package com.apc.revenuerise.providers
 
+import com.apc.revenuerise.api.GeoApi
 import com.apc.revenuerise.api.HomeApi
 import dagger.Module
 import dagger.Provides
@@ -14,6 +15,8 @@ import javax.inject.Singleton
 
 
 private const val  BASE_URL="http://62.72.59.119:8950/"
+private const val  GEO_BASE_URL="https://maps.googleapis.com"
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -35,6 +38,28 @@ object ApiProvider {
             .client(httpClient.build())
             .build()
             .create(HomeApi::class.java)
+
+
+
+    }
+
+
+
+    @Singleton
+    @Provides
+    fun provideGeoApi(): GeoApi {
+        val logging = HttpLoggingInterceptor()
+        logging.apply { logging.level = HttpLoggingInterceptor.Level.BODY }
+        val httpClient = OkHttpClient.Builder()
+            .connectTimeout(5, TimeUnit.MINUTES)
+            .readTimeout(5, TimeUnit.MINUTES)
+            .addInterceptor(logging)
+        return Retrofit.Builder()
+            .baseUrl(GEO_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(httpClient.build())
+            .build()
+            .create(GeoApi::class.java)
 
 
     }
